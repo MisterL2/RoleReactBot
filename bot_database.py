@@ -5,7 +5,7 @@ async def save_role_to_db(message_ID: int, emoji, role_ID: int):  # message_ID i
     print(role_ID)
 
 
-async def remove_role_from_db(message_ID: int, emoji, role_ID: int):  # message_ID is globally unique
+async def delete_role_from_db(message_ID: int, emoji, role_ID: int):  # message_ID is globally unique
     print("Removing role from db...")
     print(message_ID)
     print(emoji)
@@ -17,3 +17,5 @@ async def get_roleID(message_ID: int, emoji):
     print("Getting roleID from database!")
     print(emoji.name)
     print(message_ID)
+    role_ID = 669633862183157779
+    return role_ID
