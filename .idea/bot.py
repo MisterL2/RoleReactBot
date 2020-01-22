@@ -1,3 +1,0 @@
-import discord
-
-print("hi")
