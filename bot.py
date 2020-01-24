@@ -1,10 +1,8 @@
 from discord.ext.commands import *
+import bot_database
 
 TOKEN = open(
     "C:\\Users\\tramp\\Documents\\Programming\\Python Projekte\\Discord bots\\ReactionRolesv2\\token.txt").read()
-
-# MessageID : Emoji : RoleID
-# Persist in db using h2
 
 # Fallback for reaction adds / removes when Bot is offline:
 # 1. For every combination of {messageID + Emoji} that appears in the database, save all userIDs that reacted to it in the database
@@ -22,5 +20,6 @@ bot = Bot(command_prefix='!', description="MisterL's utility bot")
 bot.load_extension("bot_events")
 bot.load_extension("bot_commands")
 
+bot_database.initialise_db()
 
 bot.run(TOKEN)

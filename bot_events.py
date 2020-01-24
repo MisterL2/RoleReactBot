@@ -1,6 +1,6 @@
 from discord import RawReactionActionEvent
 from discord.ext.commands import Cog, CommandError, MissingPermissions
-from bot_database import get_roleID
+from bot_database import get_role_id
 from bot_errors import CommandNullException, UselessError
 
 
@@ -54,11 +54,14 @@ class BotListeners(Cog):
             raise UselessError
 
         # Check if globally unique message_id & emoji are in db
-        role_id = await get_roleID(payload.message_id, payload.emoji)
+        role_id = await get_role_id(payload.message_id, payload.emoji.name)
 
         if role_id is None:  # Other emoji or other message (or both) than in the db
             raise UselessError
 
         role = guild.get_role(role_id)
+
+        if role is None:
+            raise CommandNullException(role_id, "roleID")
 
         return member, role
