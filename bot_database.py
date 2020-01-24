@@ -5,7 +5,7 @@ cur = None
 
 
 def initialise_db():
-    db = "data\\database.db"
+    db = "data/database.db"
     database_exists = os.path.isfile(db)
     conn = sqlite3.connect(db, isolation_level=None)
 
