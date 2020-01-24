@@ -34,6 +34,7 @@ class BotListeners(Cog):
 
         # Inform user
         guild = self.bot.get_guild(payload.guild_id)
+        # TODO - Add the emoji associated to the role to this message
         await member.send(embed=Embed(title=f"Role `{role.name}` assigned in `{guild.name}`", description="Thanks for using Utility Bot!"))
 
     @Cog.listener()
@@ -49,6 +50,7 @@ class BotListeners(Cog):
 
         # Inform user
         guild = self.bot.get_guild(payload.guild_id)
+        # TODO - Add the emoji associated to the role to this message
         await member.send(embed=Embed(title=f"Role `{role.name}` removed in `{guild.name}`", description="Thanks for using Utility Bot!"))
 
     @Cog.listener()
@@ -91,6 +93,7 @@ class BotListeners(Cog):
         print("Checking for outdated entries...")
         guild_list = {guild.id: guild for guild in self.bot.guilds}
 
+        # TODO - Rather than saving the entire db in memory temporarily, fetch one row at a time (for scalability)
         entries = await bot_database.get_all_saved_messages()
         outdated_entries = []
         for entry in entries:
