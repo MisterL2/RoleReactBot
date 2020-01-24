@@ -1,0 +1,6 @@
+If you want to run this on your own bot:
+
+1. Create a "token.txt" file in this directory (/data/)
+2. Put your API key inside of it
+
+Please do not try to "imitate" my bot, i.e. by choosing the same name / avatar.

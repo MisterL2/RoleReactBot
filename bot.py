@@ -6,7 +6,7 @@ import bot_database
 import bot_errors
 import bot_helpers
 
-TOKEN = open("data\\token.txt").read()
+TOKEN = open("data/token.txt").read()
 
 
 # Fallback for reaction adds / removes when Bot is offline:
