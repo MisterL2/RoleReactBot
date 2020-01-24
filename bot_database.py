@@ -25,12 +25,12 @@ def initialise_db():
         print("Database created!")
 
 
-async def save_role_to_db(guild_id: int, message_id: int, emoji: str, role_id: int):  # message_ID is globally unique
+async def save_entry_to_db(guild_id: int, message_id: int, emoji: str, role_id: int):  # message_ID is globally unique
     cur.execute("INSERT INTO messages VALUES (?,?,?,?)", (int(guild_id), int(message_id), emoji, int(role_id)))  # Explicit casts to int, in case they were previously somehow malformed
     # print("DEBUG: Saved role to db...")
 
 
-async def delete_role_from_db(message_id: int, emoji: str):  # message_ID is globally unique
+async def delete_entry_from_db(message_id: int, emoji: str):  # message_ID is globally unique
     role_id = await get_role_id(message_id, emoji)
     if role_id is not None:
         cur.execute("DELETE FROM messages WHERE messageID = ? AND emoji = ?", (int(message_id), emoji))  # Explicit casts to int, in case they were previously somehow malformed
@@ -56,7 +56,11 @@ async def get_all_saved_messages():
     return cur.fetchall()
 
 
-async def delete_rows(outdated_entries: [[]]):
+async def delete_entries(outdated_entries: [[]]):
     print("Deleting outdated entries...")
     print(outdated_entries)
-    cur.executemany("DELETE FROM messages WHERE guildID = ? AND messageID = ? AND emoji = ? AND roleID = ?",outdated_entries)
+    cur.executemany("DELETE FROM messages WHERE guildID = ? AND messageID = ? AND emoji = ? AND roleID = ?", outdated_entries)
+
+# Delete all mentions to a role from the database
+async def delete_role(role_id: int):
+    cur.execute("DELETE FROM messages WHERE roleID = ?", (int(role_id),))

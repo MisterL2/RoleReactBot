@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord.ext.commands import *
 import bot_helpers
 
-from bot_database import save_role_to_db, delete_role_from_db
+from bot_database import save_entry_to_db, delete_entry_from_db
 
 
 def setup(bot):
@@ -27,7 +27,7 @@ class BotCommands(Cog):
             return
 
         # Add the info to the db
-        await save_role_to_db(ctx.guild.id, message_id, emoji, role.id)
+        await save_entry_to_db(ctx.guild.id, message_id, emoji, role.id)
         await ctx.send(f'Added Role `{role.name}` with emoji `{emoji}`')
 
         # Add a reaction to the message
@@ -38,7 +38,7 @@ class BotCommands(Cog):
     @has_permissions(administrator=True)
     async def remove_role(self, ctx: Context, message_id: int, emoji):
 
-        role_id = await delete_role_from_db(message_id, emoji)
+        role_id = await delete_entry_from_db(message_id, emoji)
         # If there was no such entry to begin with
         if role_id is None:
             await ctx.send(f"There is no entry for a message with id `{message_id}` in combination with `emoji`!")

@@ -27,8 +27,17 @@ async def on_error(event, *args, **kwargs):
     exc_type, exc_value, exc_traceback = sys.exc_info()
 
     # Ignore ProcessAborted
-    if exc_type == bot_errors.ProcessAborted:
+    if exc_type in {bot_errors.ProcessAborted}:
         return
+
+    if exc_type == bot_errors.MissingObjectException:
+        print("Something was missing: ", end="")
+        print(exc_value.object_id, end=" | ")
+        print(exc_value.object_type)
+        if exc_value.object_type == "role_id":
+            print("Deleting outdated role!")
+            await bot_database.delete_role(exc_value.object_id)
+            return
 
     trace = exc_value.__traceback__
     verbosity = 4

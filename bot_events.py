@@ -4,7 +4,7 @@ from discord.ext.commands import Cog, CommandError, MissingPermissions
 import bot_database
 import bot_helpers
 from bot_database import get_role_id
-from bot_errors import CommandNullException, ProcessAborted
+from bot_errors import MissingObjectException, ProcessAborted
 
 
 def setup(bot):
@@ -55,10 +55,6 @@ class BotListeners(Cog):
     async def on_command_error(self, ctx, error: CommandError):
         if isinstance(error, MissingPermissions):
             await ctx.send("You do not have the permissions to use this command!")
-        elif isinstance(error, CommandNullException):
-            print("Something was deleted:", end="")
-            print(error.object_id, end=" | ")
-            print(error.object_type)
 
         print("Some error occurred!")
         print(f"Error: {error}")
@@ -71,7 +67,7 @@ class BotListeners(Cog):
         guild = self.bot.get_guild(payload.guild_id)
 
         if guild is None:
-            raise CommandNullException(payload.guild_id, "guildID")
+            raise MissingObjectException(payload.guild_id, "guild_id")
 
         member = guild.get_member(payload.user_id)
 
@@ -87,7 +83,7 @@ class BotListeners(Cog):
         role = guild.get_role(role_id)
 
         if role is None:
-            raise CommandNullException(role_id, "roleID")
+            raise MissingObjectException(role_id, "role_id")
 
         return member, role
 
@@ -117,6 +113,6 @@ class BotListeners(Cog):
                 continue
 
         if outdated_entries:
-            await bot_database.delete_rows(outdated_entries)
+            await bot_database.delete_entries(outdated_entries)
 
         print("All entries up to date!")
