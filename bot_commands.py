@@ -44,12 +44,12 @@ class BotCommands(Cog):
             await ctx.send(f"There is no entry for a message with id `{message_id}` in combination with `emoji`!")
             return
 
-        role = await RoleConverter().convert(ctx, role_id)
+        role = ctx.guild.get_role(role_id)
         await ctx.send(f'Removed Role `{role.name}` with emoji `{emoji}`')
 
         message = await bot_helpers.find_message(ctx.guild, message_id)
         if message is not None:
-            await message.remove_reaction(emoji, self.bot)  # Remove the Bot's reaction
+            await message.remove_reaction(emoji, self.bot.user)  # Remove the Bot's reaction
 
 
 

@@ -7,5 +7,5 @@ class CommandNullException(CommandError):
 
 
 # When an error does not need to be responded to at all. For example, this may be raised when a user uses a different reaction that shouldn't interact with this bot
-class UselessError(CommandError):
+class ProcessAborted(Exception):
     pass

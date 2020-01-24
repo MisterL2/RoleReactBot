@@ -1,10 +1,10 @@
-from discord import RawReactionActionEvent
+from discord import RawReactionActionEvent, Embed
 from discord.ext.commands import Cog, CommandError, MissingPermissions
 
 import bot_database
 import bot_helpers
 from bot_database import get_role_id
-from bot_errors import CommandNullException, UselessError
+from bot_errors import CommandNullException, ProcessAborted
 
 
 def setup(bot):
@@ -28,7 +28,13 @@ class BotListeners(Cog):
             return
 
         member, role = await self.reaction_role_change(payload)
+
+        # Add role
         await member.add_roles(role, reason="Removed by MisterL's UtilityBot")
+
+        # Inform user
+        guild = self.bot.get_guild(payload.guild_id)
+        await member.send(embed=Embed(title=f"Role `{role.name}` assigned in `{guild.name}`", description="Thanks for using Utility Bot!"))
 
     @Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -37,7 +43,13 @@ class BotListeners(Cog):
             return
 
         member, role = await self.reaction_role_change(payload)
+
+        # Remove role
         await member.remove_roles(role, reason="Removed by MisterL's UtilityBot")
+
+        # Inform user
+        guild = self.bot.get_guild(payload.guild_id)
+        await member.send(embed=Embed(title=f"Role `{role.name}` removed in `{guild.name}`", description="Thanks for using Utility Bot!"))
 
     @Cog.listener()
     async def on_command_error(self, ctx, error: CommandError):
@@ -47,31 +59,30 @@ class BotListeners(Cog):
             print("Something was deleted:", end="")
             print(error.object_id, end=" | ")
             print(error.object_type)
-        elif isinstance(error, UselessError):
-            pass
+
         print("Some error occurred!")
         print(f"Error: {error}")
 
     async def reaction_role_change(self, payload: RawReactionActionEvent):  # Returns either a (Member, Role) Tuple, or raises an exception which is handled in on_command_error
-        # If not on a server:
+        # If not on a server
         if payload.guild_id is None:
-            raise UselessError
+            raise ProcessAborted
 
         guild = self.bot.get_guild(payload.guild_id)
 
         if guild is None:
-            raise CommandNullException(payload.guild_id, "guild")
+            raise CommandNullException(payload.guild_id, "guildID")
 
         member = guild.get_member(payload.user_id)
 
         if member is None:
-            raise UselessError
+            raise ProcessAborted
 
         # Check if globally unique message_id & emoji are in db
         role_id = await get_role_id(payload.message_id, payload.emoji.name)
 
         if role_id is None:  # Other emoji or other message (or both) than in the db
-            raise UselessError
+            raise ProcessAborted
 
         role = guild.get_role(role_id)
 
