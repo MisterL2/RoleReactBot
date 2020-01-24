@@ -1,6 +1,7 @@
-from discord import Role, NotFound
+from discord import Role
 from discord.ext import commands
 from discord.ext.commands import *
+import bot_helpers
 
 from bot_database import save_role_to_db, delete_role_from_db
 
@@ -20,20 +21,17 @@ class BotCommands(Cog):
     async def add_role(self, ctx: Context, message_id: int, emoji, role: Role):
 
         # Check that message really exists
-        for channel in ctx.guild.text_channels:
-            try:
-                maybe_message = await channel.fetch_message(message_id)
-                print(maybe_message)
-                break
-            except NotFound:
-                pass
-        else:  # If the message was not found
+        message = await bot_helpers.find_message(ctx.guild, message_id)
+        if message is None:
             await ctx.send(f"There is no message with id `{message_id}` on this server!")
             return
 
-        # If the message exists, add the info to the db
-        await save_role_to_db(message_id, emoji, role.id)
+        # Add the info to the db
+        await save_role_to_db(ctx.guild.id, message_id, emoji, role.id)
         await ctx.send(f'Added Role `{role.name}` with emoji `{emoji}`')
+
+        # Add a reaction to the message
+        await message.add_reaction(emoji)
 
     # Usage: !removeRole [MessageID] [Emoji] [RoleID]
     @commands.command(name="removeRole")
@@ -47,5 +45,12 @@ class BotCommands(Cog):
             return
 
         role = await RoleConverter().convert(ctx, role_id)
-
         await ctx.send(f'Removed Role `{role.name}` with emoji `{emoji}`')
+
+        message = await bot_helpers.find_message(ctx.guild, message_id)
+        if message is not None:
+            await message.remove_reaction(emoji, self.bot)  # Remove the Bot's reaction
+
+
+
+
