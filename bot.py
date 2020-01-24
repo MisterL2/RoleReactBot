@@ -2,8 +2,7 @@ from discord.ext.commands import *
 import bot_database
 import bot_helpers
 
-TOKEN = open(
-    "C:\\Users\\tramp\\Documents\\Programming\\Python Projekte\\Discord bots\\ReactionRolesv2\\token.txt").read()
+TOKEN = open("token.txt").read()
 
 
 # Fallback for reaction adds / removes when Bot is offline:
