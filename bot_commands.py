@@ -27,7 +27,7 @@ class BotCommands(Cog):
             return
 
         # Add the info to the db
-        await save_entry_to_db(ctx.guild.id, message_id, emoji, role.id)
+        await save_entry_to_db(ctx.guild.id, message_id, bot_helpers.get_emoji_identifier(emoji), role.id)
         await ctx.send(f'Added Role `{role.name}` with emoji `{emoji}`')
         print(f'Added Role `{role.name}` with emoji `{emoji}`')
 
@@ -39,10 +39,10 @@ class BotCommands(Cog):
     @has_permissions(administrator=True)
     async def remove_role(self, ctx: Context, message_id: int, emoji):
 
-        role_id = await delete_entry_from_db(message_id, emoji)
+        role_id = await delete_entry_from_db(message_id, bot_helpers.get_emoji_identifier(emoji))
         # If there was no such entry to begin with
         if role_id is None:
-            await ctx.send(f"There is no entry for a message with id `{message_id}` in combination with `emoji`!")
+            await ctx.send(f"There is no entry for a message with id `{message_id}` in combination with `{emoji}`!")
             return
 
         role = ctx.guild.get_role(role_id)

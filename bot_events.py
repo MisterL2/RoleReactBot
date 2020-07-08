@@ -61,6 +61,8 @@ class BotListeners(Cog):
             await ctx.send("You do not have the permissions to use this command!")
 
         print(f"An error occurred: {error}")
+        print(type(error))
+        await ctx.send(f"An error occurred: {error}")
 
     async def reaction_role_change(self, payload: RawReactionActionEvent):  # Returns either a (Member, Role) Tuple, or raises an exception which is handled in on_command_error
         # If not on a server
@@ -73,7 +75,7 @@ class BotListeners(Cog):
             raise MissingObjectException(payload.guild_id, "guild_id")
 
         if payload.emoji is None: # This occurs with custom emojis that have been deleted from the server (but can still be reacted to)
-            print(f"Reaction to deleted custom emoji on server {guild.name}")
+            print(f"Reaction to deleted custom emoji on server {guild.name}.")
             return
 
         member = guild.get_member(payload.user_id)
@@ -81,15 +83,8 @@ class BotListeners(Cog):
         if member is None:
             raise ProcessAborted
 
-
-        #Temporary debug
-        print("Payload emoji info below")
-        print(payload.emoji)
-        print(payload.emoji.name)
-        print(f"Custom emoji: {payload.emoji.is_custom_emoji()}")
-
         # Check if globally unique message_id & emoji are in db
-        role_id = await get_role_id(payload.message_id, payload.emoji.name)
+        role_id = await get_role_id(payload.message_id, bot_helpers.get_emoji_identifier(payload.emoji))
 
         if role_id is None:  # Other emoji or other message (or both) than in the db
             raise ProcessAborted
@@ -110,7 +105,6 @@ class BotListeners(Cog):
         outdated_entries = []
         for entry in entries:
             # Clean up no-longer-existent guilds
-            keys = guild_list.keys()
             if int(entry[0]) not in guild_list.keys():
                 outdated_entries.append(entry)
                 continue
