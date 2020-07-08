@@ -29,6 +29,7 @@ class BotCommands(Cog):
         # Add the info to the db
         await save_entry_to_db(ctx.guild.id, message_id, emoji, role.id)
         await ctx.send(f'Added Role `{role.name}` with emoji `{emoji}`')
+        print(f'Added Role `{role.name}` with emoji `{emoji}`')
 
         # Add a reaction to the message
         await message.add_reaction(emoji)
@@ -46,7 +47,8 @@ class BotCommands(Cog):
 
         role = ctx.guild.get_role(role_id)
         await ctx.send(f'Removed Role `{role.name}` with emoji `{emoji}`')
-
+        print(f'Removed Role `{role.name}` with emoji `{emoji}`')
+        
         message = await bot_helpers.find_message(ctx.guild, message_id)
         if message is not None:
             await message.remove_reaction(emoji, self.bot.user)  # Remove the Bot's reaction

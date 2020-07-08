@@ -36,6 +36,7 @@ class BotListeners(Cog):
         guild = self.bot.get_guild(payload.guild_id)
         # TODO - Add the emoji associated to the role to this message
         await member.send(embed=Embed(title=f"Role `{role.name}` assigned in `{guild.name}`", description="Thanks for using Utility Bot!"))
+        print(f"Role `{role.name}` assigned in `{guild.name}`")
 
     @Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -52,14 +53,14 @@ class BotListeners(Cog):
         guild = self.bot.get_guild(payload.guild_id)
         # TODO - Add the emoji associated to the role to this message
         await member.send(embed=Embed(title=f"Role `{role.name}` removed in `{guild.name}`", description="Thanks for using Utility Bot!"))
+        print(f"Role `{role.name}` removed in `{guild.name}`")
 
     @Cog.listener()
     async def on_command_error(self, ctx, error: CommandError):
         if isinstance(error, MissingPermissions):
             await ctx.send("You do not have the permissions to use this command!")
 
-        print("Some error occurred!")
-        print(f"Error: {error}")
+        print(f"An error occurred: {error}")
 
     async def reaction_role_change(self, payload: RawReactionActionEvent):  # Returns either a (Member, Role) Tuple, or raises an exception which is handled in on_command_error
         # If not on a server
@@ -71,10 +72,21 @@ class BotListeners(Cog):
         if guild is None:
             raise MissingObjectException(payload.guild_id, "guild_id")
 
+        if payload.emoji is None: # This occurs with custom emojis that have been deleted from the server (but can still be reacted to)
+            print(f"Reaction to deleted custom emoji on server {guild.name}")
+            return
+
         member = guild.get_member(payload.user_id)
 
         if member is None:
             raise ProcessAborted
+
+
+        #Temporary debug
+        print("Payload emoji info below")
+        print(payload.emoji)
+        print(payload.emoji.name)
+        print(f"Custom emoji: {payload.emoji.is_custom_emoji()}")
 
         # Check if globally unique message_id & emoji are in db
         role_id = await get_role_id(payload.message_id, payload.emoji.name)
