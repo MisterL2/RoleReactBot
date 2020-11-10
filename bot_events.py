@@ -23,17 +23,19 @@ class BotListeners(Cog):
 
     @Cog.listener()
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
+        
         # Ignore own reactions
         if payload.user_id == self.bot.user.id:
             return
-
+        
         member, role = await self.reaction_role_change(payload)
-
+        
         # Add role
-        await member.add_roles(role, reason="Removed by MisterL's UtilityBot")
-
+        await member.add_roles(role, reason="Added by MisterL's UtilityBot")
+        
         # Inform user
         guild = self.bot.get_guild(payload.guild_id)
+        
         # TODO - Add the emoji associated to the role to this message
         await member.send(embed=Embed(title=f"Role `{role.name}` assigned in `{guild.name}`", description="Thanks for using Utility Bot!"))
         print(f"Role `{role.name}` assigned in `{guild.name}`")
@@ -65,35 +67,37 @@ class BotListeners(Cog):
         await ctx.send(f"An error occurred: {error}")
 
     async def reaction_role_change(self, payload: RawReactionActionEvent):  # Returns either a (Member, Role) Tuple, or raises an exception which is handled in on_command_error
+        
         # If not on a server
         if payload.guild_id is None:
             raise ProcessAborted
-
+        
         guild = self.bot.get_guild(payload.guild_id)
-
+        
         if guild is None:
             raise MissingObjectException(payload.guild_id, "guild_id")
-
+        
         if payload.emoji is None: # This occurs with custom emojis that have been deleted from the server (but can still be reacted to)
             print(f"Reaction to deleted custom emoji on server {guild.name}.")
             return
-
+        
         member = guild.get_member(payload.user_id)
-
+        
         if member is None:
+            print(f"Reaction by non-existant member on server {guild.name}")
             raise ProcessAborted
-
+        
         # Check if globally unique message_id & emoji are in db
         role_id = await get_role_id(payload.message_id, bot_helpers.get_emoji_identifier(payload.emoji))
-
+        
         if role_id is None:  # Other emoji or other message (or both) than in the db
             raise ProcessAborted
-
+        
         role = guild.get_role(role_id)
-
+        
         if role is None:
             raise MissingObjectException(role_id, "role_id")
-
+        
         return member, role
 
     async def clean_guilds(self):

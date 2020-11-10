@@ -2,6 +2,7 @@ import sys
 import traceback
 
 from discord.ext.commands import *
+import discord
 import bot_database
 import bot_errors
 import bot_helpers
@@ -18,7 +19,10 @@ f.close()
 
 bot_database.initialise_db()
 
-bot = Bot(command_prefix='!', description="MisterL's utility bot")
+intents = discord.Intents.default()
+intents.members = True
+
+bot = Bot(command_prefix='!', description="MisterL's utility bot", intents=intents)
 
 bot.load_extension("bot_events")
 bot.load_extension("bot_commands")
